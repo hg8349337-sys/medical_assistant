@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// 1. إعدادات Firebase الخاصة بك (بقيت كما هي)
+// 1. إعدادات Firebase الخاصة بك
 const firebaseConfig = {
     apiKey: "AIzaSyDYV2c9_PAcla_7btxKA7L7nHWmroD94zQ",
     authDomain: "myalarmapp-26e3e.firebaseapp.com",
@@ -26,17 +26,21 @@ if (!userId) {
 const alarmSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
 alarmSound.loop = true;
 
-// 4. تفعيل الإشعارات والتركيز التلقائي عند أول تفاعل
+// 4. تفعيل الإشعارات والتركيز التلقائي وتنظيف التنبيهات عند الدخول
 window.onload = () => {
     const medInput = document.getElementById('medicineName');
     if (medInput) medInput.focus();
 };
 
+// ميزة "مثل فيسبوك": تنظيف الإشعارات والصوت فور دخول المستخدم للتطبيق
+window.onfocus = () => {
+    stopAlarmAction();
+};
+
 // تعديل هام للأيفون: طلب الإذن وتفعيل الصوت بضغطة واحدة
 document.body.addEventListener('click', () => {
-    // تفعيل الصوت للأيفون (يجب تشغيل صوت صامت أو تهيئة المحرك بلمسة)
     alarmSound.play().then(() => {
-        alarmSound.pause(); // نفعله ثم نطفئه فوراً ليصبح "موثوقاً" للنظام
+        alarmSound.pause(); 
     }).catch(e => console.log("Audio prep ready"));
 
     if (Notification.permission === "default") {
@@ -44,12 +48,12 @@ document.body.addEventListener('click', () => {
     }
 }, { once: true });
 
-// تسجيل الـ Service Worker (ضروري لإشعارات الجوال)
+// تسجيل الـ Service Worker
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
 }
 
-// 5. إضافة منبه جديد (مرتبط بالمستخدم الحالي فقط)
+// 5. إضافة منبه جديد
 document.getElementById('addBtn').onclick = () => {
     const medInput = document.getElementById('medicineName');
     const timeInput = document.getElementById('alarmTime');
@@ -66,7 +70,7 @@ document.getElementById('addBtn').onclick = () => {
     }
 };
 
-// 6. جلب وعرض المنبهات الخاصة بك فقط من السحاب
+// 6. جلب وعرض المنبهات
 onValue(ref(db, `alarms/${userId}`), (snapshot) => {
     const list = document.getElementById('alarmsList');
     list.innerHTML = "";
@@ -85,7 +89,7 @@ onValue(ref(db, `alarms/${userId}`), (snapshot) => {
         delBtn.innerText = "حذف";
         delBtn.className = "delete-btn";
         delBtn.onclick = () => {
-            stopAlarmAction(); // إيقاف الصوت إذا كان يعمل عند الحذف
+            stopAlarmAction(); 
             remove(ref(db, `alarms/${userId}/${id}`));
         };
 
@@ -94,7 +98,7 @@ onValue(ref(db, `alarms/${userId}`), (snapshot) => {
     }
 });
 
-// 7. نظام الفحص الدوري (كل ثانية) لتشغيل التنبيه
+// 7. نظام الفحص الدوري
 setInterval(() => {
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -111,10 +115,10 @@ setInterval(() => {
     }
 }, 1000);
 
-// 8. دالة تشغيل التنبيه (تعديل: إضافة خصائص الإشعار القوي للأيفون والأندرويد)
+// 8. دالة تشغيل التنبيه (مع خصائص الإشعار المستمر)
 function triggerAlarmNotification(medName) {
     alarmSound.currentTime = 0;
-    alarmSound.play().catch(e => console.log("التفاعل مطلوب لتشغيل الصوت"));
+    alarmSound.play().catch(e => console.log("التفاعل مطلوب"));
 
     const stopBtn = document.getElementById('stopSoundBtn');
     if (stopBtn) {
@@ -125,23 +129,21 @@ function triggerAlarmNotification(medName) {
     if (Notification.permission === "granted") {
         navigator.serviceWorker.ready.then(reg => {
             const options = {
-                body: `💊 حان موعد جرعة: ${medName}\nاضغط هنا لإيقاف الصوت.`,
+                body: `🚨 موعد دواء: ${medName}\nاضغط للدخول والإيقاف.`,
                 icon: "https://cdn-icons-png.flaticon.com/512/822/822143.png",
                 badge: "https://cdn-icons-png.flaticon.com/512/822/822143.png",
                 tag: "med-alert",
-                renotify: true, // يكرر التنبيه إذا جاء مرة أخرى
-                requireInteraction: true, // يبقى ظاهراً (مهم جداً للنافذة المنبثقة)
-                vibrate: [200, 100, 200, 100, 200, 100, 400], // نمط اهتزاز قوي
-                actions: [
-                    { action: 'stop', title: 'إيقاف التنبيه 🔇' }
-                ]
+                renotify: true,
+                requireInteraction: true, 
+                vibrate: [200, 100, 200, 100, 200],
+                data: { url: window.location.href } // تمرير الرابط لفتحه عند الضغط
             };
-            reg.showNotification("MedPulse: تنبيه دواء ذكي", options);
+            reg.showNotification("تنبيه MedPulse الذكي", options);
         });
     }
 }
 
-// 9. دالة إيقاف التنبيه عند الطلب
+// 9. دالة إيقاف التنبيه وتنظيف الإشعارات
 function stopAlarmAction() {
     alarmSound.pause();
     alarmSound.currentTime = 0;
@@ -151,13 +153,15 @@ function stopAlarmAction() {
         stopBtn.classList.remove('pulse-animation');
     }
 
-    // إغلاق الإشعارات الظاهرة
-    navigator.serviceWorker.ready.then(reg => {
-        reg.getNotifications({ tag: 'med-alert' }).then(notifications => {
-            notifications.forEach(n => n.close());
+    // حذف الإشعارات من شريط التنبيهات (الأندرويد والأيفون)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(reg => {
+            reg.getNotifications({ tag: 'med-alert' }).then(notifications => {
+                notifications.forEach(n => n.close());
+            });
         });
-    });
+    }
 }
 
-// ربط زر الإيقاف بالدالة
+// ربط الزر
 document.getElementById('stopSoundBtn').onclick = stopAlarmAction;
