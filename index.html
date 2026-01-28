@@ -3,41 +3,39 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MedPulse | مساعدك الطبي الذكي</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>MedPulse Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/822/822143.png">
-    <meta name="theme-color" content="#0a0a0c">
-
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <div class="background-animation"></div>
-    <div class="main-card">
-        <header>
-            <div class="logo-area">
-                <h1>MED-PULSE</h1>
-            </div>
-            <p class="subtitle">نظام تتبع الدواء الذكي</p>
-        </header>
-        <div class="form-group">
-            <label>اسم الدواء</label>
-            <input type="text" id="medicineName" placeholder="أدخل اسم الدواء...">
-        </div>
-        <div class="form-group">
-            <label>وقت الجرعة</label>
-            <input type="time" id="alarmTime">
-        </div>
-        <div class="action-area">
-            <button id="addBtn" class="primary-btn">حفظ وتفعيل التنبيه</button>
-            <button id="stopSoundBtn" class="stop-btn hidden">إيقاف الرنين الآن 🔇</button>
-        </div>
-        <div id="alarmsList" class="alarms-grid"></div>
-        <p class="footer-note">نظام مشفر سحابياً لخصوصيتك</p>
+    <div class="background-canvas"></div>
+
+    <div id="alarmOverlay" class="overlay hidden">
+        <div class="pulse-glow"></div>
+        <h2 id="activeMedName">رنين نشط...</h2>
+        <button id="stopSoundBtn" class="stop-btn-neon">إيقاف الرنين 🔇</button>
     </div>
+
+    <main class="glass-card">
+        <header>
+            <h1 class="neon-text">MED-PULSE</h1>
+            <p class="status-text">نظام التنبيه قيد التشغيل</p>
+        </header>
+
+        <div class="input-container">
+            <input type="text" id="medicineName" placeholder="اسم الدواء (مثل: بنادول)">
+            <input type="time" id="alarmTime">
+            <button id="addBtn" class="action-btn">حفظ الموعد</button>
+        </div>
+
+        <div id="alarmsList" class="custom-scroll-list">
+        </div>
+    </main>
+
     <script type="module" src="app.js"></script>
 </body>
 
