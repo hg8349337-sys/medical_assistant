@@ -1,15 +1,11 @@
 self.addEventListener('notificationclick', function(event) {
-    event.notification.close(); // إغلاق الإشعار عند الضغط عليه
-    if (event.action === 'stop') {
-        // منطق إيقاف الصوت يمكن وضعه هنا أو العودة للتطبيق
-    }
+    event.notification.close(); // يغلق الإشعار فوراً
     event.waitUntil(
-        clients.matchAll({ type: 'window' }).then(windowClients => {
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
             if (windowClients.length > 0) {
-                windowClients[0].focus();
-            } else {
-                clients.openWindow('/');
+                return windowClients[0].focus(); // يفتح التطبيق إذا كان مفتوحاً في الخلفية
             }
+            return clients.openWindow('/'); // يفتح التطبيق من جديد
         })
     );
 });
