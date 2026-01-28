@@ -1,262 +1,168 @@
+/* style.css */
+
 :root {
-    --medical-blue: #00d2ff;
-    --neon-purple: #9d50bb;
-    --bg-dark: #0a0a0c;
-    --card-bg: rgba(20, 20, 25, 0.95);
-    --stop-red: #ff4757;
+    --neon-blue: #00f3ff;
+    --neon-pink: #ff00c1;
+    --neon-purple: #bc13fe;
+    --dark-bg: #020205;
 }
 
-body {
+body,
+html {
     margin: 0;
     padding: 0;
-    background-color: var(--bg-dark);
-    font-family: 'Cairo', sans-serif;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: var(--dark-bg);
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    direction: rtl;
+    overflow: hidden;
 }
 
-.background-animation {
+
+/* الخلفية المتحركة */
+
+.background-canvas {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+    inset: 0;
     z-index: -1;
+    background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #000);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
 }
 
-.main-card {
-    background: var(--card-bg);
-    width: 95%;
-    max-width: 550px;
-    padding: 40px;
-    border-radius: 30px;
-    border: 2px solid rgba(0, 210, 255, 0.3);
-    box-shadow: 0 0 30px rgba(0, 210, 255, 0.15);
-    position: relative;
-    animation: glowBorder 8s linear infinite;
-    backdrop-filter: blur(10px);
-}
-
-@keyframes glowBorder {
-    0%,
-    100% {
-        border-color: rgba(0, 210, 255, 0.3);
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
     }
     50% {
-        border-color: rgba(157, 80, 187, 0.6);
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
     }
 }
 
-.logo-area {
-    text-align: center;
-    margin-bottom: 10px;
+
+/* المربع الزجاجي الثابت */
+
+.glass-card {
+    width: 90%;
+    max-width: 420px;
+    height: 85vh;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 40px;
+    padding: 30px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
 }
 
-.logo-area h1 {
+.neon-text {
+    text-align: center;
     font-size: 32px;
-    letter-spacing: 2px;
+    letter-spacing: 5px;
+    color: var(--neon-blue);
+    text-shadow: 0 0 15px var(--neon-blue);
     margin: 0;
-    color: var(--medical-blue);
-    text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
 }
 
-.subtitle {
-    text-align: center;
-    opacity: 0.7;
-    margin-bottom: 35px;
-}
 
-.form-group {
-    margin-bottom: 25px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: var(--medical-blue);
-    font-size: 14px;
-}
+/* مدخلات البيانات */
 
 input {
     width: 100%;
-    padding: 18px;
-    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
+    background: rgba(0, 0, 0, 0.4);
     color: white;
-    font-size: 18px;
-    box-sizing: border-box;
-    transition: 0.3s;
+    font-size: 16px;
     outline: none;
 }
 
 input:focus {
-    border-color: var(--medical-blue);
-    box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--neon-blue);
 }
 
-.action-area {
-    margin-top: 35px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-button {
+.action-btn {
     width: 100%;
-    padding: 18px;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 12px;
     border: none;
-    border-radius: 15px;
-    font-size: 18px;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+    color: white;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.4s;
-    font-family: 'Cairo', sans-serif;
+    transition: 0.3s;
 }
 
-.primary-btn {
-    background: linear-gradient(90deg, var(--medical-blue), var(--neon-purple));
-    color: white;
-    box-shadow: 0 10px 20px rgba(0, 210, 255, 0.2);
+
+/* قائمة المواعيد */
+
+.custom-scroll-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 25px;
+    padding-right: 5px;
 }
 
-.primary-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 25px rgba(0, 210, 255, 0.4);
+.custom-scroll-list::-webkit-scrollbar {
+    width: 3px;
 }
 
-.stop-btn {
-    background: transparent;
-    color: var(--stop-red);
-    border: 2px solid var(--stop-red);
-    padding: 22px;
-    font-size: 22px;
-    border-radius: 20px;
-    margin-top: 20px;
-    text-transform: uppercase;
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
+.custom-scroll-list::-webkit-scrollbar-thumb {
+    background: var(--neon-blue);
 }
 
-.stop-btn::before {
-    content: '';
+
+/* شاشة الإيقاف */
+
+.overlay {
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: 0.5s;
-    z-index: -1;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 40px;
 }
 
-.stop-btn:hover::before {
-    left: 100%;
-}
-
-.stop-btn:hover {
-    background: var(--stop-red);
+.stop-btn-neon {
+    padding: 20px 40px;
+    border-radius: 50px;
+    border: none;
+    background: var(--neon-pink);
     color: white;
-    box-shadow: 0 0 40px rgba(255, 71, 87, 0.6);
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 30px var(--neon-pink);
+    animation: pulse 1s infinite;
 }
 
-.pulse-animation {
-    animation: pulse-red 1.2s infinite;
-    background: rgba(255, 71, 87, 0.1);
-}
-
-@keyframes pulse-red {
+@keyframes pulse {
     0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
+        scale: 1;
     }
-    70% {
-        transform: scale(1.03);
-        box-shadow: 0 0 20px 10px rgba(255, 71, 87, 0);
+    50% {
+        scale: 1.1;
     }
     100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
+        scale: 1;
     }
 }
 
 .hidden {
-    display: none;
-}
-
-.alarms-grid {
-    margin-top: 40px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 20px;
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.alarm-item {
-    background: rgba(255, 255, 255, 0.03);
-    margin-bottom: 15px;
-    padding: 20px;
-    border-radius: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-left: 5px solid var(--medical-blue);
-    animation: slideIn 0.4s ease-out forwards;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.delete-btn {
-    background: rgba(235, 77, 75, 0.1);
-    color: #ff7675;
-    border: 1px solid #eb4d4b;
-    padding: 8px 15px;
-    width: auto;
-    font-size: 14px;
-}
-
-.delete-btn:hover {
-    background: #eb4d4b;
-    color: white;
-}
-
-.glow-text {
-    color: var(--medical-blue);
-    text-shadow: 0 0 8px rgba(0, 210, 255, 0.5);
-}
-
-
-/* أسطر إضافية لضمان العدد */
-
-.footer-note {
-    text-align: center;
-    font-size: 10px;
-    opacity: 0.3;
-    margin-top: 20px;
-}
-
-::-webkit-scrollbar {
-    width: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--medical-blue);
-    border-radius: 10px;
+    display: none !important;
 }
