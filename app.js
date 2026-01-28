@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// إعدادات Firebase الخاصة بك (بقيت كما هي)
+// 1. إعدادات Firebase الخاصة بك
 const firebaseConfig = {
     apiKey: "AIzaSyDYV2c9_PAcla_7btxKA7L7nHWmroD94zQ",
     authDomain: "myalarmapp-26e3e.firebaseapp.com",
@@ -14,24 +14,36 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const userId = "user_one";
 
-// إعداد الصوت الخاص بالتنبيه
+// 2. نظام الخصوصية: استرجاع أو إنشاء معرف مستخدم فريد
+let userId = localStorage.getItem('medPulse_uid');
+if (!userId) {
+    userId = prompt("مرحباً بك! أدخل اسماً خاصاً أو رقماً سرياً لحماية أدويتك (لن يراها غيرك):") || "guest_" + Math.floor(Math.random() * 1000);
+    localStorage.setItem('medPulse_uid', userId);
+}
+
+// 3. إعداد صوت المنبه
 const alarmSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
 alarmSound.loop = true;
 
-// 1. عند فتح الموقع: اجعل التركيز فوراً على حقل اسم الدواء
+// 4. تفعيل الإشعارات والتركيز التلقائي عند أول تفاعل
 window.onload = () => {
     const medInput = document.getElementById('medicineName');
     if (medInput) medInput.focus();
 };
 
-// تسجيل الـ Service Worker للعمل في الخلفية
+document.body.addEventListener('click', () => {
+    if (Notification.permission === "default") {
+        Notification.requestPermission();
+    }
+}, { once: true });
+
+// تسجيل الـ Service Worker (ضروري لإشعارات الجوال)
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
 }
 
-// إضافة منبه جديد
+// 5. إضافة منبه جديد (مرتبط بالمستخدم الحالي فقط)
 document.getElementById('addBtn').onclick = () => {
     const medInput = document.getElementById('medicineName');
     const timeInput = document.getElementById('alarmTime');
@@ -39,92 +51,95 @@ document.getElementById('addBtn').onclick = () => {
     const time = timeInput.value;
 
     if (name && time) {
-        Notification.requestPermission().then(p => {
-            if (p === 'granted') {
-                // دفع البيانات إلى Firebase
-                push(ref(db, 'alarms/' + userId), { name, time });
-
-                // تأثير بصري عند الإضافة (إعادة تصفير الحقول وإعادة التركيز)
-                medInput.value = "";
-                timeInput.value = "";
-                medInput.focus();
-            } else {
-                alert("يرجى تفعيل الإشعارات لتلقي تنبيهات الدواء!");
-            }
-        });
+        push(ref(db, `alarms/${userId}`), { name, time });
+        medInput.value = "";
+        timeInput.value = "";
+        medInput.focus();
     } else {
-        alert("الرجاء إدخال اسم الدواء وتحديد الوقت.");
+        alert("الرجاء إدخال اسم الدواء والوقت.");
     }
 };
 
-// جلب وعرض المنبهات من السحاب وتحديث القائمة
-onValue(ref(db, 'alarms/' + userId), (snapshot) => {
-    const data = snapshot.val();
+// 6. جلب وعرض المنبهات الخاصة بك فقط من السحاب
+onValue(ref(db, `alarms/${userId}`), (snapshot) => {
     const list = document.getElementById('alarmsList');
     list.innerHTML = "";
+    const data = snapshot.val();
 
-    if (data) {
-        for (let id in data) {
-            const item = document.createElement('div');
-            item.className = 'alarm-item animated-entry'; // كلاس للأنيميشن والظهور المتدرج
-            item.innerHTML = `
-                <div class="alarm-info">
-                    <b class="glow-text">💊 ${data[id].name}</b>
-                    <span class="time-tag">⏰ الموعد: ${data[id].time}</span>
-                </div>`;
+    for (let id in data) {
+        const item = document.createElement('div');
+        item.className = 'alarm-item animated-entry';
+        item.innerHTML = `
+            <div class="alarm-info">
+                <b class="glow-text">💊 ${data[id].name}</b>
+                <span>⏰ الموعد: ${data[id].time}</span>
+            </div>`;
 
-            const delBtn = document.createElement('button');
-            delBtn.innerText = "حذف الموعد";
-            delBtn.className = "delete-btn";
-            delBtn.onclick = () => {
-                // إيقاف الصوت إذا كان يعمل عند حذف المنبه
-                alarmSound.pause();
-                remove(ref(db, `alarms/${userId}/${id}`));
-            };
+        const delBtn = document.createElement('button');
+        delBtn.innerText = "حذف";
+        delBtn.className = "delete-btn";
+        delBtn.onclick = () => {
+            stopAlarmAction(); // إيقاف الصوت إذا كان يعمل عند الحذف
+            remove(ref(db, `alarms/${userId}/${id}`));
+        };
 
-            item.appendChild(delBtn);
-            list.appendChild(item);
-        }
+        item.appendChild(delBtn);
+        list.appendChild(item);
     }
 });
 
-// نظام فحص الوقت (دقيق جداً يعمل كل ثانية)
+// 7. نظام الفحص الدوري (كل ثانية) لتشغيل التنبيه
 setInterval(() => {
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-    if (now.getSeconds() === 0) { // الفحص يتم في بداية كل دقيقة فقط
-        onValue(ref(db, 'alarms/' + userId), (snapshot) => {
+    if (now.getSeconds() === 0) {
+        onValue(ref(db, `alarms/${userId}`), (snapshot) => {
             const data = snapshot.val();
             for (let id in data) {
                 if (data[id].time === currentTime) {
-                    playAlarm(data[id].name);
+                    triggerAlarmNotification(data[id].name);
                 }
             }
         }, { onlyOnce: true });
     }
 }, 1000);
 
-// تشغيل التنبيه (صوت + إشعار نظام)
-function playAlarm(name) {
-    alarmSound.play().catch(e => console.log("المتصفح يحتاج تفاعل لتشغيل الصوت"));
+// 8. دالة تشغيل التنبيه (صوت + إشعار)
+function triggerAlarmNotification(medName) {
+    alarmSound.currentTime = 0;
+    alarmSound.play().catch(e => console.log("التفاعل مطلوب لتشغيل الصوت"));
 
     const stopBtn = document.getElementById('stopSoundBtn');
     if (stopBtn) stopBtn.classList.remove('hidden');
 
+    if (Notification.permission === "granted") {
+        navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification(`🚨 موعد دواء: ${medName}`, {
+                body: "حان وقت جرعتك الآن، اضغط هنا للإغلاق.",
+                icon: "https://cdn-icons-png.flaticon.com/512/822/822143.png",
+                tag: "med-alert",
+                requireInteraction: true,
+                vibrate: [200, 100, 200, 100, 200]
+            });
+        });
+    }
+}
+
+// 9. دالة إيقاف التنبيه عند الطلب
+function stopAlarmAction() {
+    alarmSound.pause();
+    alarmSound.currentTime = 0;
+    const stopBtn = document.getElementById('stopSoundBtn');
+    if (stopBtn) stopBtn.classList.add('hidden');
+
+    // إغلاق الإشعارات الظاهرة
     navigator.serviceWorker.ready.then(reg => {
-        reg.showNotification(`🚨 حان موعد دواء: ${name}`, {
-            body: "يرجى تناول جرعتك الآن للحفاظ على صحتك.",
-            icon: "https://cdn-icons-png.flaticon.com/512/822/822143.png",
-            vibrate: [500, 110, 500, 110, 500],
-            requireInteraction: true // يمنع اختفاء الإشعار تلقائياً
+        reg.getNotifications({ tag: 'med-alert' }).then(notifications => {
+            notifications.forEach(n => n.close());
         });
     });
 }
 
-// زر إيقاف الصوت
-document.getElementById('stopSoundBtn').onclick = () => {
-    alarmSound.pause();
-    alarmSound.currentTime = 0;
-    document.getElementById('stopSoundBtn').classList.add('hidden');
-};
+// ربط زر الإيقاف بالدالة
+document.getElementById('stopSoundBtn').onclick = stopAlarmAction;
