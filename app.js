@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// 1. إعدادات Firebase الخاصة بك
+// 1. إعدادات Firebase الخاصة بك (بقيت كما هي)
 const firebaseConfig = {
     apiKey: "AIzaSyDYV2c9_PAcla_7btxKA7L7nHWmroD94zQ",
     authDomain: "myalarmapp-26e3e.firebaseapp.com",
@@ -32,7 +32,13 @@ window.onload = () => {
     if (medInput) medInput.focus();
 };
 
+// تعديل هام للأيفون: طلب الإذن وتفعيل الصوت بضغطة واحدة
 document.body.addEventListener('click', () => {
+    // تفعيل الصوت للأيفون (يجب تشغيل صوت صامت أو تهيئة المحرك بلمسة)
+    alarmSound.play().then(() => {
+        alarmSound.pause(); // نفعله ثم نطفئه فوراً ليصبح "موثوقاً" للنظام
+    }).catch(e => console.log("Audio prep ready"));
+
     if (Notification.permission === "default") {
         Notification.requestPermission();
     }
@@ -105,23 +111,32 @@ setInterval(() => {
     }
 }, 1000);
 
-// 8. دالة تشغيل التنبيه (صوت + إشعار)
+// 8. دالة تشغيل التنبيه (تعديل: إضافة خصائص الإشعار القوي للأيفون والأندرويد)
 function triggerAlarmNotification(medName) {
     alarmSound.currentTime = 0;
     alarmSound.play().catch(e => console.log("التفاعل مطلوب لتشغيل الصوت"));
 
     const stopBtn = document.getElementById('stopSoundBtn');
-    if (stopBtn) stopBtn.classList.remove('hidden');
+    if (stopBtn) {
+        stopBtn.classList.remove('hidden');
+        stopBtn.classList.add('pulse-animation');
+    }
 
     if (Notification.permission === "granted") {
         navigator.serviceWorker.ready.then(reg => {
-            reg.showNotification(`🚨 موعد دواء: ${medName}`, {
-                body: "حان وقت جرعتك الآن، اضغط هنا للإغلاق.",
+            const options = {
+                body: `💊 حان موعد جرعة: ${medName}\nاضغط هنا لإيقاف الصوت.`,
                 icon: "https://cdn-icons-png.flaticon.com/512/822/822143.png",
+                badge: "https://cdn-icons-png.flaticon.com/512/822/822143.png",
                 tag: "med-alert",
-                requireInteraction: true,
-                vibrate: [200, 100, 200, 100, 200]
-            });
+                renotify: true, // يكرر التنبيه إذا جاء مرة أخرى
+                requireInteraction: true, // يبقى ظاهراً (مهم جداً للنافذة المنبثقة)
+                vibrate: [200, 100, 200, 100, 200, 100, 400], // نمط اهتزاز قوي
+                actions: [
+                    { action: 'stop', title: 'إيقاف التنبيه 🔇' }
+                ]
+            };
+            reg.showNotification("MedPulse: تنبيه دواء ذكي", options);
         });
     }
 }
@@ -131,7 +146,10 @@ function stopAlarmAction() {
     alarmSound.pause();
     alarmSound.currentTime = 0;
     const stopBtn = document.getElementById('stopSoundBtn');
-    if (stopBtn) stopBtn.classList.add('hidden');
+    if (stopBtn) {
+        stopBtn.classList.add('hidden');
+        stopBtn.classList.remove('pulse-animation');
+    }
 
     // إغلاق الإشعارات الظاهرة
     navigator.serviceWorker.ready.then(reg => {
