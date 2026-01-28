@@ -15,76 +15,76 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// 2. نظام الخصوصية: كلمة السر والمعرف الفريد
+// 2. نظام الخصوصية الموحد (كلمة السر)
 let userId = localStorage.getItem('medPulse_uid');
 if (!userId) {
-    let pass = prompt("🔐 مرحباً بك! عيّن كلمة سر خاصة بك لحماية قائمة أدويتك:");
-    if (pass) {
-        userId = pass;
+    let pass = prompt("🔐 إعداد الأمان: أدخل كلمة سر خاصة بك للوصول لأدويتك من أي جهاز:");
+    if (pass && pass.trim() !== "") {
+        userId = pass.trim();
         localStorage.setItem('medPulse_uid', userId);
     } else {
-        userId = "guest_" + Math.floor(Math.random() * 1000);
+        userId = "user_" + Math.floor(Math.random() * 10000);
+        localStorage.setItem('medPulse_uid', userId);
     }
 }
 
-// 3. إعداد الصوت وتجهيزه للعمل في الخلفية (مهم للأيفون)
+// 3. محرك الصوت (متوافق مع قيود الأيفون والويندوز)
 const alarmSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
 alarmSound.loop = true;
+alarmSound.preload = 'auto';
 
-// دالة لتجهيز الصوت عند أول لمسة
-document.body.addEventListener('click', () => {
-    alarmSound.play().then(() => { alarmSound.pause(); }).catch(e => console.log("Audio Init"));
-    if (Notification.permission === "default") { Notification.requestPermission(); }
-}, { once: true });
+// تفعيل الصوت والإشعارات عند أول لمسة (ضروري لـ iOS و Windows Chrome)
+const initializeMedia = () => {
+    alarmSound.play().then(() => {
+        alarmSound.pause();
+        console.log("تم تهيئة نظام الصوت لكل الأنظمة");
+    }).catch(e => console.log("بانتظار تفاعل المستخدم..."));
 
-// 4. ميزة "مثل فيسبوك": مسح الإشعار فور دخول التطبيق
-window.onfocus = () => {
-    stopAlarmAction();
+    if ("Notification" in window) {
+        Notification.requestPermission();
+    }
 };
+document.body.addEventListener('click', initializeMedia, { once: true });
+document.body.addEventListener('touchstart', initializeMedia, { once: true });
 
+// 4. تسجيل الـ Service Worker لضمان عمل الإشعارات "اللحظية"
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
+    navigator.serviceWorker.register('sw.js').then(reg => {
+        console.log("Service Worker Active ✅");
+    });
 }
 
-// 5. إضافة منبه جديد
+// 5. إضافة دواء جديد
 document.getElementById('addBtn').onclick = () => {
-    const medInput = document.getElementById('medicineName');
-    const timeInput = document.getElementById('alarmTime');
-    const name = medInput.value;
-    const time = timeInput.value;
+    const medName = document.getElementById('medicineName').value;
+    const medTime = document.getElementById('alarmTime').value;
 
-    if (name && time) {
-        push(ref(db, `alarms/${userId}`), { name, time });
-        medInput.value = "";
-        timeInput.value = "";
+    if (medName && medTime) {
+        push(ref(db, `alarms/${userId}`), { name: medName, time: medTime });
+        alert("📍 تم تفعيل المنبه اللحظي سحابياً");
     } else {
-        alert("الرجاء إدخال البيانات كاملة.");
+        alert("يرجى ملء البيانات");
     }
 };
 
-// 6. عرض المنبهات السحابية
+// 6. عرض المنبهات (تحديث تلقائي لجميع الأجهزة)
 onValue(ref(db, `alarms/${userId}`), (snapshot) => {
     const list = document.getElementById('alarmsList');
     list.innerHTML = "";
     const data = snapshot.val();
     for (let id in data) {
         const item = document.createElement('div');
-        item.className = 'alarm-item';
-        item.innerHTML = `
-            <div class="alarm-info">
-                <b class="glow-text">💊 ${data[id].name}</b>
-                <span>⏰ الموعد: ${data[id].time}</span>
-            </div>`;
+        item.className = 'alarm-item animated-entry';
+        item.innerHTML = `<div><b>💊 ${data[id].name}</b> - ⏰ ${data[id].time}</div>`;
         const delBtn = document.createElement('button');
         delBtn.innerText = "حذف";
-        delBtn.className = "delete-btn";
         delBtn.onclick = () => remove(ref(db, `alarms/${userId}/${id}`));
         item.appendChild(delBtn);
         list.appendChild(item);
     }
 });
 
-// 7. الفحص الدوري والتشغيل اللحظي
+// 7. نظام المراقبة اللحظي (Precision Timer)
 setInterval(() => {
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -94,51 +94,47 @@ setInterval(() => {
             const data = snapshot.val();
             for (let id in data) {
                 if (data[id].time === currentTime) {
-                    triggerAlarmNotification(data[id].name);
+                    triggerGlobalAlarm(data[id].name);
                 }
             }
         }, { onlyOnce: true });
     }
 }, 1000);
 
-// 8. دالة التنبيه (صوت + إشعار منبثق)
-function triggerAlarmNotification(medName) {
+// 8. تشغيل التنبيه اللحظي (Notification + Sound)
+function triggerGlobalAlarm(name) {
+    // تشغيل الصوت (يعمل على الويندوز والأندرويد فوراً، وعلى الأيفون إذا كان PWA)
     alarmSound.currentTime = 0;
-    alarmSound.play();
+    alarmSound.play().catch(() => console.log("فشل تشغيل الصوت تلقائياً"));
 
-    const stopBtn = document.getElementById('stopSoundBtn');
-    if (stopBtn) {
-        stopBtn.classList.remove('hidden');
-        stopBtn.classList.add('pulse-animation');
-    }
+    document.getElementById('stopSoundBtn').classList.remove('hidden');
 
-    if (Notification.permission === "granted") {
+    // إرسال الإشعار اللحظي
+    if ("Notification" in window && Notification.permission === "granted") {
         navigator.serviceWorker.ready.then(reg => {
-            reg.showNotification("MedPulse: موعد الدواء!", {
-                body: `🚨 حان الآن موعد جرعة: ${medName}\nإضغط هنا للإيقاف.`,
+            const options = {
+                body: `🚨 حان وقت جرعة: ${name}\nاضغط هنا لفتح التطبيق وإيقاف الرنين.`,
                 icon: "https://cdn-icons-png.flaticon.com/512/822/822143.png",
                 tag: "med-alert",
-                requireInteraction: true,
-                vibrate: [200, 100, 200],
-                data: { url: window.location.href }
-            });
+                requireInteraction: true, // يبقى ظاهراً في الويندوز والأندرويد
+                vibrate: [500, 100, 500],
+                data: { url: window.location.origin + window.location.pathname }
+            };
+            reg.showNotification("MedPulse Alarm", options);
         });
     }
 }
 
-// 9. دالة الإيقاف
-function stopAlarmAction() {
+// 9. ميزة "مثل فيسبوك": تنظيف الإشعارات عند العودة للتطبيق
+const clearAlarm = () => {
     alarmSound.pause();
-    const stopBtn = document.getElementById('stopSoundBtn');
-    if (stopBtn) { stopBtn.classList.add('hidden'); }
-
+    document.getElementById('stopSoundBtn').classList.add('hidden');
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then(reg => {
-            reg.getNotifications({ tag: 'med-alert' }).then(notifications => {
-                notifications.forEach(n => n.close());
-            });
+            reg.getNotifications({ tag: 'med-alert' }).then(notifs => notifs.forEach(n => n.close()));
         });
     }
-}
+};
 
-document.getElementById('stopSoundBtn').onclick = stopAlarmAction;
+window.onfocus = clearAlarm;
+document.getElementById('stopSoundBtn').onclick = clearAlarm;
