@@ -4,15 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MedPulse | مساعدك الطبي</title>
-
+    <title>MedPulse | مساعدك الطبي الذكي</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="MedPulse">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/822/822143.png">
-
     <meta name="theme-color" content="#0a0a0c">
-    <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
@@ -20,37 +16,28 @@
 
 <body>
     <div class="background-animation"></div>
-
-    <div class="container main-card">
+    <div class="main-card">
         <header>
             <div class="logo-area">
-                <span class="pulse-icon">💉</span>
                 <h1>MED-PULSE</h1>
             </div>
-            <p class="subtitle">نظام تتبع الدواء السحابي</p>
+            <p class="subtitle">نظام تتبع الدواء الذكي</p>
         </header>
-
-        <div class="input-section">
-            <div class="form-group">
-                <label>اسم الدواء</label>
-                <input type="text" id="medicineName" placeholder="مثلاً: بنادول، فيتامين سي..." autofocus>
-            </div>
-
-            <div class="form-group">
-                <label>وقت الجرعة</label>
-                <input type="time" id="alarmTime">
-            </div>
-
-            <div class="action-area">
-                <button id="addBtn" class="primary-btn">تفعيل التنبيه الآن</button>
-                <button id="stopSoundBtn" class="stop-btn hidden">إيقاف الرنين 🔇</button>
-            </div>
+        <div class="form-group">
+            <label>اسم الدواء</label>
+            <input type="text" id="medicineName" placeholder="أدخل اسم الدواء...">
         </div>
-
-        <div id="alarmsList" class="alarms-grid">
+        <div class="form-group">
+            <label>وقت الجرعة</label>
+            <input type="time" id="alarmTime">
         </div>
+        <div class="action-area">
+            <button id="addBtn" class="primary-btn">حفظ وتفعيل التنبيه</button>
+            <button id="stopSoundBtn" class="stop-btn hidden">إيقاف الرنين الآن 🔇</button>
+        </div>
+        <div id="alarmsList" class="alarms-grid"></div>
+        <p class="footer-note">نظام مشفر سحابياً لخصوصيتك</p>
     </div>
-
     <script type="module" src="app.js"></script>
 </body>
 
