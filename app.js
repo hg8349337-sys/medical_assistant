@@ -17,15 +17,31 @@ const userId = "master_user_01";
 const alarmSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
 alarmSound.loop = true;
 
-// تسجيل الـ Service Worker لضمان ظهور "البانر" المنبثق
+// 1. تسجيل الـ Service Worker فوراً
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
+    navigator.serviceWorker.register('sw.js').then(reg => {
+        console.log("Service Worker Registered for iOS");
+    });
 }
 
-// فك حظر الصوت والإشعارات عند أول لمسة للمستخدم
+// 2. دالة "الإلحاح" المخصصة للآيفون (تُستدعى عند أول ضغطة)
+async function enableIOSNotifications() {
+    if ('Notification' in window) {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            // إجبار المتصفح على الربط مع محرك الإشعارات
+            const reg = await navigator.serviceWorker.ready;
+            if ('index' in reg) { // التأكد من وجود Content Indexing لزيادة الأولوية
+                console.log("iOS Indexing Ready");
+            }
+        }
+    }
+}
+
+// فك حظر الصوت والإشعارات (iOS يتطلب ضغطة صريحة)
 document.body.addEventListener('click', () => {
-    alarmSound.play().then(() => alarmSound.pause());
-    if (Notification.permission === "default") Notification.requestPermission();
+    enableIOSNotifications(); // تفعيل الإلحاح للآيفون
+    alarmSound.play().then(() => alarmSound.pause()); 
 }, { once: true });
 
 // إضافة موعد
@@ -55,7 +71,7 @@ onValue(ref(db, `alarms/${userId}`), (snapshot) => {
     }
 });
 
-// نظام فحص الوقت (دقيق بالثانية) لإطلاق الإشعار المنبثق
+// نظام فحص الوقت
 setInterval(() => {
     const now = new Date();
     const curTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -72,19 +88,21 @@ setInterval(() => {
     }
 }, 1000);
 
+// دالة التنبيه المعدلة للآيفون (Native Banner)
 function triggerAlarmNotification(name) {
     alarmSound.play();
     document.getElementById('alarmOverlay').classList.remove('hidden');
     document.getElementById('activeMedName').innerText = "جرعة: " + name;
 
-    // إرسال الإشعار المنبثق (System Banner)
     if (Notification.permission === "granted") {
         navigator.serviceWorker.ready.then(reg => {
             reg.showNotification(`🚨 موعد دواء: ${name}`, {
-                body: "اضغط للدخول وإيقاف الرنين فورا",
+                body: "اضغط للدخول وإيقاف الرنين فوراً",
                 icon: "https://cdn-icons-png.flaticon.com/512/822/822143.png",
-                requireInteraction: true,
-                tag: 'med-alert'
+                badge: "https://cdn-icons-png.flaticon.com/512/822/822143.png",
+                tag: 'med-alert-' + name, // Tag فريد لكل دواء لضمان الانبثاق
+                requireInteraction: true, // يمنع اختفاء الإشعار تلقائياً في iOS
+                vibrate: [200, 100, 200]
             });
         });
     }
@@ -96,7 +114,6 @@ document.getElementById('stopSoundBtn').onclick = () => {
     document.getElementById('alarmOverlay').classList.add('hidden');
 };
 
-// تفعيل شاشة الإيقاف إذا دخل المستخدم من الإشعار والمنبه يرن
 window.onfocus = () => {
     if (!alarmSound.paused) document.getElementById('alarmOverlay').classList.remove('hidden');
 };
