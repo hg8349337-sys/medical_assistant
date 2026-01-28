@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedPulse | مساعدك الطبي</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-animation"></div>
+
+    <div class="container main-card">
+        <header>
+            <div class="logo-area">
+                <span class="pulse-icon">💉</span>
+                <h1>MED-PULSE</h1>
+            </div>
+            <p class="subtitle">نظام تتبع الدواء السحابي</p>
+        </header>
+
+        <div class="input-section">
+            <div class="form-group">
+                <label>اسم الدواء</label>
+                <input type="text" id="medicineName" placeholder="مثلاً: بنادول، فيتامين سي..." autofocus>
+            </div>
+
+            <div class="form-group">
+                <label>وقت الجرعة</label>
+                <input type="time" id="alarmTime">
+            </div>
+
+            <div class="action-area">
+                <button id="addBtn" class="primary-btn">تفعيل التنبيه الآن</button>
+                <button id="stopSoundBtn" class="hidden stop-btn">إيقاف الرنين 🔇</button>
+            </div>
+        </div>
+
+        <div id="alarmsList" class="alarms-grid">
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>

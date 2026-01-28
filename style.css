@@ -1,0 +1,183 @@
+:root {
+    --medical-blue: #00d2ff;
+    --neon-purple: #9d50bb;
+    --bg-dark: #0a0a0c;
+    --card-bg: rgba(20, 20, 25, 0.95);
+}
+
+body {
+    margin: 0;
+    background-color: var(--bg-dark);
+    font-family: 'Cairo', sans-serif;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.background-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+    z-index: -1;
+}
+
+
+/* المربع الرئيسي: أعرض وأكبر */
+
+.main-card {
+    background: var(--card-bg);
+    width: 95%;
+    max-width: 550px;
+    /* زيادة العرض */
+    padding: 40px;
+    border-radius: 30px;
+    border: 2px solid rgba(0, 210, 255, 0.3);
+    box-shadow: 0 0 30px rgba(0, 210, 255, 0.15);
+    position: relative;
+    animation: glowBorder 8s linear infinite;
+}
+
+@keyframes glowBorder {
+    0%,
+    100% {
+        border-color: rgba(0, 210, 255, 0.3);
+    }
+    50% {
+        border-color: rgba(157, 80, 187, 0.6);
+    }
+}
+
+.logo-area {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.logo-area h1 {
+    font-size: 32px;
+    letter-spacing: 2px;
+    margin: 0;
+    color: var(--medical-blue);
+}
+
+.subtitle {
+    text-align: center;
+    opacity: 0.7;
+    margin-bottom: 35px;
+}
+
+
+/* تنسيق المجموعات مع مسافات */
+
+.form-group {
+    margin-bottom: 25px;
+    /* مسافة بين الحقل والآخر */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: var(--medical-blue);
+    font-size: 14px;
+}
+
+input {
+    width: 100%;
+    padding: 18px;
+    /* تكبير الحقل */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    color: white;
+    font-size: 18px;
+    box-sizing: border-box;
+    transition: 0.3s;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--medical-blue);
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+
+/* منطقة الأزرار مع مسافات */
+
+.action-area {
+    margin-top: 35px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* مسافة بين الأزرار */
+}
+
+button {
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.primary-btn {
+    background: linear-gradient(90deg, var(--medical-blue), var(--neon-purple));
+    color: white;
+    box-shadow: 0 10px 20px rgba(0, 210, 255, 0.2);
+}
+
+.primary-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(0, 210, 255, 0.4);
+}
+
+.stop-btn {
+    background: #ff4757;
+    color: white;
+}
+
+.hidden {
+    display: none;
+}
+
+
+/* قائمة المنبهات */
+
+.alarms-grid {
+    margin-top: 40px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+
+.alarm-item {
+    background: rgba(255, 255, 255, 0.03);
+    margin-bottom: 15px;
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid var(--medical-blue);
+}
+
+.delete-btn {
+    background: rgba(235, 77, 75, 0.2);
+    color: #ff7675;
+    border: 1px solid #eb4d4b;
+    padding: 8px 15px;
+    width: auto;
+    font-size: 14px;
+}
+
+.delete-btn:hover {
+    background: #eb4d4b;
+    color: white;
+}
