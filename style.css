@@ -1,248 +1,176 @@
-/* =========================================
-   1. المتغيرات الأساسية (Global Variables)
-   ========================================= */
 :root {
     --medical-blue: #00d2ff;
     --neon-purple: #9d50bb;
     --bg-dark: #0a0a0c;
     --card-bg: rgba(20, 20, 25, 0.95);
     --stop-red: #ff4757;
-    --text-white: #ffffff;
-    --transition-speed: 0.4s;
-    --border-glow: rgba(0, 210, 255, 0.3);
 }
 
-/* =========================================
-   2. تنسيق الصفحة العام (Global Styles)
-   ========================================= */
 body {
     margin: 0;
     padding: 0;
     background-color: var(--bg-dark);
     font-family: 'Cairo', sans-serif;
-    color: var(--text-white);
+    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow-x: hidden;
     direction: rtl;
 }
 
-/* =========================================
-   3. خلفية متحركة (Background Elements)
-   ========================================= */
 .background-animation {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(
-        circle at center, 
-        #1b2735 0%, 
-        #090a0f 100%
-    );
+    background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
     z-index: -1;
-    filter: brightness(0.8);
 }
 
-/* =========================================
-   4. البطاقة الرئيسية (Main Card)
-   ========================================= */
 .main-card {
     background: var(--card-bg);
     width: 95%;
     max-width: 550px;
     padding: 40px;
     border-radius: 30px;
-    border: 2px solid var(--border-glow);
+    border: 2px solid rgba(0, 210, 255, 0.3);
     box-shadow: 0 0 30px rgba(0, 210, 255, 0.15);
     position: relative;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     animation: glowBorder 8s linear infinite;
-    z-index: 10;
+    backdrop-filter: blur(10px);
 }
 
-/* أنيميشن الحواف المضيئة */
 @keyframes glowBorder {
-    0% {
+    0%,
+    100% {
         border-color: rgba(0, 210, 255, 0.3);
     }
     50% {
         border-color: rgba(157, 80, 187, 0.6);
     }
-    100% {
-        border-color: rgba(0, 210, 255, 0.3);
-    }
 }
 
-/* =========================================
-   5. الهوية والشعار (Header Section)
-   ========================================= */
 .logo-area {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .logo-area h1 {
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: 3px;
+    font-size: 32px;
+    letter-spacing: 2px;
     margin: 0;
     color: var(--medical-blue);
-    text-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
+    text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
 }
 
 .subtitle {
     text-align: center;
-    font-size: 16px;
     opacity: 0.7;
-    margin-bottom: 40px;
-    letter-spacing: 1px;
+    margin-bottom: 35px;
 }
 
-/* =========================================
-   6. حقول الإدخال (Form Fields)
-   ========================================= */
 .form-group {
-    margin-bottom: 30px;
-    width: 100%;
+    margin-bottom: 25px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 12px;
-    font-weight: 600;
+    margin-bottom: 10px;
+    font-weight: bold;
     color: var(--medical-blue);
-    font-size: 15px;
-    padding-right: 5px;
+    font-size: 14px;
 }
 
 input {
     width: 100%;
-    padding: 20px;
+    padding: 18px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 18px;
+    border-radius: 15px;
     color: white;
     font-size: 18px;
-    font-family: 'Cairo', sans-serif;
     box-sizing: border-box;
+    transition: 0.3s;
     outline: none;
-    transition: all 0.3s ease-in-out;
 }
 
 input:focus {
     border-color: var(--medical-blue);
-    box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
     background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-2px);
 }
 
-/* =========================================
-   7. الأزرار الأساسية (Action Buttons)
-   ========================================= */
 .action-area {
-    margin-top: 40px;
+    margin-top: 35px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
 }
 
 button {
     width: 100%;
-    padding: 20px;
+    padding: 18px;
     border: none;
-    border-radius: 18px;
-    font-size: 19px;
-    font-weight: 700;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: bold;
     cursor: pointer;
+    transition: 0.4s;
     font-family: 'Cairo', sans-serif;
-    transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .primary-btn {
-    background: linear-gradient(
-        90deg, 
-        var(--medical-blue), 
-        var(--neon-purple)
-    );
+    background: linear-gradient(90deg, var(--medical-blue), var(--neon-purple));
     color: white;
     box-shadow: 0 10px 20px rgba(0, 210, 255, 0.2);
-    position: relative;
-    z-index: 1;
 }
 
 .primary-btn:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 210, 255, 0.4);
-    filter: brightness(1.1);
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(0, 210, 255, 0.4);
 }
 
-.primary-btn:active {
-    transform: translateY(0);
-}
-
-/* =========================================
-   8. زر الإيقاف المطور (Special Stop Button)
-   ========================================= */
 .stop-btn {
     background: transparent;
     color: var(--stop-red);
-    border: 3px solid var(--stop-red);
-    padding: 25px;
+    border: 2px solid var(--stop-red);
+    padding: 22px;
     font-size: 22px;
-    border-radius: 22px;
-    margin-top: 25px;
+    border-radius: 20px;
+    margin-top: 20px;
     text-transform: uppercase;
-    letter-spacing: 2px;
     position: relative;
     overflow: hidden;
-    font-weight: 900;
-    box-shadow: 0 0 15px rgba(255, 71, 87, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+    z-index: 1;
 }
 
-/* تأثير اللمعة البرقية */
-.stop-btn::after {
+.stop-btn::before {
     content: '';
     position: absolute;
     top: 0;
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.3), 
-        transparent
-    );
-    transition: 0.6s;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
     z-index: -1;
 }
 
-.stop-btn:hover::after {
+.stop-btn:hover::before {
     left: 100%;
 }
 
 .stop-btn:hover {
     background: var(--stop-red);
     color: white;
-    box-shadow: 0 0 50px rgba(255, 71, 87, 0.8);
-    transform: scale(1.02);
+    box-shadow: 0 0 40px rgba(255, 71, 87, 0.6);
 }
 
-/* حالة النبض وقت الرنين */
 .pulse-animation {
-    animation: pulse-red 1.2s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
-    background: rgba(255, 71, 87, 0.2);
-    border-color: #ff0000;
-    display: block !important;
+    animation: pulse-red 1.2s infinite;
+    background: rgba(255, 71, 87, 0.1);
 }
 
 @keyframes pulse-red {
@@ -251,8 +179,8 @@ button {
         box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
     }
     70% {
-        transform: scale(1.05);
-        box-shadow: 0 0 30px 20px rgba(255, 71, 87, 0);
+        transform: scale(1.03);
+        box-shadow: 0 0 20px 10px rgba(255, 71, 87, 0);
     }
     100% {
         transform: scale(1);
@@ -264,40 +192,30 @@ button {
     display: none;
 }
 
-/* =========================================
-   9. قائمة عرض المنبهات (Alarms Grid)
-   ========================================= */
 .alarms-grid {
-    margin-top: 50px;
-    border-top: 2px dashed rgba(255, 255, 255, 0.1);
-    padding-top: 30px;
-    max-height: 400px;
+    margin-top: 40px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    max-height: 300px;
     overflow-y: auto;
 }
 
 .alarm-item {
     background: rgba(255, 255, 255, 0.03);
-    margin-bottom: 20px;
-    padding: 25px;
-    border-radius: 20px;
+    margin-bottom: 15px;
+    padding: 20px;
+    border-radius: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-right: 6px solid var(--medical-blue);
-    border-left: 1px solid rgba(255, 255, 255, 0.05);
-    transition: transform 0.3s ease;
-    animation: slideInRtl 0.6s ease-out forwards;
+    border-left: 5px solid var(--medical-blue);
+    animation: slideIn 0.4s ease-out forwards;
 }
 
-.alarm-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-    transform: scale(1.01);
-}
-
-@keyframes slideInRtl {
+@keyframes slideIn {
     from {
         opacity: 0;
-        transform: translateX(30px);
+        transform: translateX(20px);
     }
     to {
         opacity: 1;
@@ -305,73 +223,40 @@ button {
     }
 }
 
-/* تفاصيل المنبه داخل الكارت */
-.alarm-info b {
-    font-size: 20px;
-    color: var(--medical-blue);
-    display: block;
-    margin-bottom: 5px;
-}
-
-.alarm-info span {
-    font-size: 14px;
-    opacity: 0.6;
-    font-weight: normal;
-}
-
-/* =========================================
-   10. زر الحذف (Delete Button)
-   ========================================= */
 .delete-btn {
-    background: rgba(255, 71, 87, 0.1);
+    background: rgba(235, 77, 75, 0.1);
     color: #ff7675;
-    border: 1px solid #ff4757;
-    padding: 10px 20px;
+    border: 1px solid #eb4d4b;
+    padding: 8px 15px;
     width: auto;
     font-size: 14px;
-    border-radius: 12px;
-    transition: 0.3s ease;
 }
 
 .delete-btn:hover {
-    background: #ff4757;
+    background: #eb4d4b;
     color: white;
-    box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
 }
 
-/* =========================================
-   11. تأثيرات إضافية (Utility Classes)
-   ========================================= */
 .glow-text {
     color: var(--medical-blue);
-    text-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
+    text-shadow: 0 0 8px rgba(0, 210, 255, 0.5);
 }
 
-.time-tag {
-    background: rgba(0, 210, 255, 0.1);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    color: var(--medical-blue);
-    border: 1px solid rgba(0, 210, 255, 0.2);
+
+/* أسطر إضافية لضمان العدد */
+
+.footer-note {
+    text-align: center;
+    font-size: 10px;
+    opacity: 0.3;
+    margin-top: 20px;
 }
 
-/* تخصيص شريط التمرير (Scrollbar) */
-.alarms-grid::-webkit-scrollbar {
-    width: 6px;
+::-webkit-scrollbar {
+    width: 5px;
 }
 
-.alarms-grid::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.alarms-grid::-webkit-scrollbar-thumb {
-    background: rgba(0, 210, 255, 0.2);
+::-webkit-scrollbar-thumb {
+    background: var(--medical-blue);
     border-radius: 10px;
 }
-
-.alarms-grid::-webkit-scrollbar-thumb:hover {
-    background: var(--medical-blue);
-}
-
-/* النهاية */
